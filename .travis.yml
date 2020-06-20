@@ -1,0 +1,28 @@
+language: generic 
+sudo: required
+# tell travis that it depends on docker
+services:
+  - docker
+
+# run tests before building prod containers
+before_install:
+  # use dev docker file because only the dev version contains tests
+  - docker build -t temp/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true temp/react-test npm test 
+
+after_sucess:
+  # build a container for each of the components
+  # by default it uses Dockerfile
+  - docker build -t rey72b/multi-client ./client
+  - docker build -t rey72b/multi-nginx ./nginx
+  - docker build -t rey72b/multi-server ./server
+  - docker build -t rey72b/multi-worker ./worker
+  # login to docker CLI (username and pwd stored in travis ci)
+  - echo "$DOCKER_PWD" | docker login -u "$DOCKER_ID" --password-stdin
+  # push these images to docker hub
+  - docker push rey72b/multi-client
+  - docker push rey72b/multi-nginx
+  - docker push rey72b/multi-server
+  - docker push rey72b/multi-worker
