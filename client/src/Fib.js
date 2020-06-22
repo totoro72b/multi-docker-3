@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
 import axios from 'axios';
+import React, { Component } from 'react';
 
 class Fib extends Component {
   state = {
@@ -14,6 +14,8 @@ class Fib extends Component {
   }
 
   async fetchValues() {
+    // TODO when client makes this http request, it has to go through nginx right?
+    // then why is there an arrow from client directly to api server?
     const values = await axios.get('/api/values/current');
     this.setState({ values: values.data });
   }
